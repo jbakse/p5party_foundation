@@ -187,6 +187,11 @@ function updatePlaying() {
       (crate) => crate.x === floorSwitch.x && crate.y === floorSwitch.y
     );
     const pressed = pressedByGuest || pressedByCrate;
+    if (pressed) {
+      floorSwitch.state = "down";
+    } else {
+      floorSwitch.state = "up";
+    }
     itemsOfType("door")
       .filter((g) => floorSwitch.group === g.group)
       .forEach((door) => (door.open = pressed));

@@ -11,10 +11,26 @@ export let roleKeeper;
 let shared;
 const camera = new Camera();
 
+const assets = {};
+
 export function preload() {
   shared = partyLoadShared("shared");
   roleKeeper = new RoleKeeper(["player1", "player2"], "unassigned");
   roleKeeper.setAutoAssign(false);
+  assets.player = {
+    left: loadImage("assets/player-l.png"),
+    right: loadImage("assets/player-r.png"),
+    up: loadImage("assets/player-r.png"),
+    down: loadImage("assets/player-r.png"),
+  };
+  assets.items = {
+    crate: loadImage("assets/crate.png"),
+    door: loadImage("assets/door.png"),
+    floorSwitch: {
+      up: loadImage("assets/switch-up.png"),
+      down: loadImage("assets/switch-down.png"),
+    },
+  };
 }
 
 export function setup() {}
@@ -76,7 +92,7 @@ export function draw() {
   // draw game
   drawGrid();
   drawMap();
-  items.drawItems(shared.items);
+  items.drawItems(shared.items, assets.items);
   drawPlayers();
   pop();
 
@@ -117,25 +133,20 @@ function drawMap() {
 }
 
 function drawPlayers() {
-  const directionDict = {
-    down: 0,
-    up: PI,
-    left: PI / 2,
-    right: -PI / 2,
-  };
   push();
 
   for (const player of Object.values(shared.players)) {
+    const playerImg = assets.player[player.facing];
+    const imgRatio = playerImg.width / playerImg.height;
     push();
-    translate(
-      localPlayer(player).x * CONFIG.grid.size + 32,
-      localPlayer(player).y * CONFIG.grid.size + 32
+    translate(localPlayer(player).x * CONFIG.grid.size, localPlayer(player).y * CONFIG.grid.size);
+    image(
+      playerImg,
+      0,
+      -CONFIG.grid.size / imgRatio + CONFIG.grid.size,
+      CONFIG.grid.size,
+      CONFIG.grid.size / imgRatio
     );
-    rotate(directionDict[player.facing]);
-    fill(player.color);
-    ellipse(0, 0, 64);
-    fill("white");
-    ellipse(0, 24, 16);
     pop();
   }
   pop();

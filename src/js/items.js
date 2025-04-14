@@ -13,6 +13,25 @@ const itemTemplate = {
   color: "magenta",
   alpha: 255,
   mapSymbol: "?",
+  hasAsset: false,
+  state: null,
+  drawAsset: function (assets) {
+    push();
+    imageMode(CENTER);
+    const img = this.state ? assets[this.type][this.state] : assets[this.type];
+    const imgRatio = img.width / img.height;
+    const isVertical = img.width < img.height;
+    const imgW = isVertical ? CONFIG.grid.size * imgRatio : CONFIG.grid.size;
+    const imgH = isVertical ? CONFIG.grid.size : CONFIG.grid.size / imgRatio;
+    image(
+      img,
+      this.x * CONFIG.grid.size + CONFIG.grid.size / 2,
+      this.y * CONFIG.grid.size + CONFIG.grid.size / 2,
+      imgW,
+      imgH
+    );
+    pop();
+  },
   draw: function () {
     push();
     ellipseMode(CENTER);
@@ -34,12 +53,10 @@ const itemTemplate = {
 const crateTemplate = {
   type: "crate",
   hits: 0,
-  size: 56,
-  shape: "rect",
-  color: "brown",
   alpha: 255,
-  z: 1,
+  z: 2,
   mapSymbol: "▢",
+  hasAsset: true,
   blocksPush: function () {
     return true;
   },
@@ -78,9 +95,7 @@ const doorTemplate = {
   type: "door",
   open: false,
   group: "",
-  size: 56,
-  shape: "rect",
-  color: "#335",
+  hasAsset: true,
   mapSymbol: function () {
     return this.group.toUpperCase();
   },
@@ -90,18 +105,17 @@ const doorTemplate = {
   blocksPush: function () {
     return !this.open;
   },
-  draw: function () {
+  drawAsset: function (assets) {
     if (this.open) return;
-    itemTemplate.draw.call(this);
+    itemTemplate.drawAsset.call(this, assets);
   },
 };
 
 const floorSwitchTemplate = {
   type: "floorSwitch",
   group: "",
-  size: 48,
-  shape: "ellipse",
-  color: "#335",
+  state: "up",
+  hasAsset: true,
   mapSymbol: function () {
     return this.group;
   },
@@ -164,16 +178,20 @@ export function blocksPush(item) {
   return item.blocksPush?.() ?? false;
 }
 
-export function drawItem(item) {
+export function drawItem(item, assets) {
   item = { ...itemTemplate, ...templates[item.type], ...item };
-  item.draw();
+  if (item.hasAsset) {
+    item.drawAsset(assets);
+  } else {
+    item.draw();
+  }
 }
 
 export function itemsOfType(type) {
   return shared.items.filter((g) => g.type === type);
 }
 
-export function drawItems(items) {
+export function drawItems(items, assets) {
   push();
 
   // sort items by z. undefined zs default to 0
@@ -182,7 +200,7 @@ export function drawItems(items) {
   for (const item of sortedItems) {
     // don't draw items flagged to remove
     if (item.remove) continue;
-    drawItem(item);
+    drawItem(item, assets);
   }
   pop();
 }
