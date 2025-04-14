@@ -1,7 +1,7 @@
 import { CONFIG } from "./config.js";
 import { Camera } from "./util/camera.js";
 import { RoleKeeper } from "./util/RoleKeeper.js";
-import { iterate2D } from "./util/utilities.js";
+import { iterate2D, getScore } from "./util/utilities.js";
 import { changeScene, scenes } from "./main.js";
 
 import * as input from "./input.js";
@@ -31,6 +31,7 @@ export function preload() {
       down: loadImage("assets/switch-down.png"),
     },
   };
+  assets.walls = loadImage("assets/tiles-template.png");
 }
 
 export function setup() {}
@@ -81,6 +82,8 @@ export function mousePressed() {}
 
 /// draw functions
 export function draw() {
+  randomSeed(0);
+
   clear();
 
   push();
@@ -125,7 +128,18 @@ function drawMap() {
   fill("#555");
   for (const [x, y, value] of iterate2D(shared.map)) {
     if (value) {
-      rect(x * CONFIG.grid.size + 4, y * CONFIG.grid.size + 4, 56, 56);
+      const score = getScore(shared.map, x, y);
+      const img = assets.walls;
+      const imageSize = img.width / 4;
+      const sx = (score % 4) * imageSize;
+      const sy = floor(score / 4) * imageSize;
+      push();
+      translate(x * CONFIG.grid.size, y * CONFIG.grid.size);
+      image(img, 0, 0, CONFIG.grid.size, CONFIG.grid.size, sx, sy, imageSize, imageSize);
+
+      // rect(4, 4, 56, 56);
+
+      pop();
     }
   }
 

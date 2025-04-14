@@ -1,3 +1,4 @@
+import { CONFIG } from "../config.js";
 // return a random integer between in range [a, b)
 export function randomInt() {
   return floor(random(...arguments));
@@ -91,4 +92,19 @@ export function transpose2D(array) {
   }
 
   return result;
+}
+
+export function sampleGrid(grid, col, row) {
+  if (col < 0 || col >= CONFIG.grid.cols) return false;
+  if (row < 0 || row >= CONFIG.grid.rows) return false;
+  return grid[col][row];
+}
+
+export function getScore(grid, col, row) {
+  let score = 0;
+  if (sampleGrid(grid, col, row - 1)) score += 1;
+  if (sampleGrid(grid, col + 1, row)) score += 2;
+  if (sampleGrid(grid, col, row + 1)) score += 4;
+  if (sampleGrid(grid, col - 1, row)) score += 8;
+  return score;
 }
