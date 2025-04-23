@@ -3,6 +3,8 @@ export const CONFIG = {
     size: 64, // size of each grid cell in pixels
     cols: 33, // number of columns in the grid
     rows: 9, // number of rows in the grid
+    width: 64,
+    height: 50,
   },
   game: {
     numTreasures: 1000,

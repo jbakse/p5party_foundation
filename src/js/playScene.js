@@ -18,20 +18,19 @@ export function preload() {
   roleKeeper = new RoleKeeper(["player1", "player2"], "unassigned");
   roleKeeper.setAutoAssign(false);
   assets.player = {
-    left: loadImage("assets/player-l.png"),
-    right: loadImage("assets/player-r.png"),
-    up: loadImage("assets/player-r.png"),
-    down: loadImage("assets/player-r.png"),
+    left: loadImage("assets/player.png"),
+    right: loadImage("assets/player.png"),
+    up: loadImage("assets/player.png"),
+    down: loadImage("assets/player.png"),
   };
   assets.items = {
-    crate: loadImage("assets/crate.png"),
-    door: loadImage("assets/door.png"),
+    crate: [loadImage("assets/crystals.png"), loadImage("assets/crystals2.png")],
     floorSwitch: {
-      up: loadImage("assets/switch-up.png"),
-      down: loadImage("assets/switch-down.png"),
+      up: loadImage("assets/switch.png"),
+      down: loadImage("assets/switch.png"),
     },
   };
-  assets.walls = loadImage("assets/tiles-template.png");
+  assets.walls = loadImage("assets/tile-map.png");
 }
 
 export function setup() {}
@@ -47,12 +46,12 @@ export function enter() {
 
 function aimCamera() {
   const cameraX =
-    ((shared.players.player1.x + 0.5) * CONFIG.grid.size +
-      (shared.players.player2.x + 0.5) * CONFIG.grid.size) *
+    ((shared.players.player1.x + 0.5) * CONFIG.grid.width +
+      (shared.players.player2.x + 0.5) * CONFIG.grid.width) *
     0.5;
   const cameraY =
-    ((shared.players.player1.y + 0.5) * CONFIG.grid.size +
-      (shared.players.player2.y + 0.5) * CONFIG.grid.size) *
+    ((shared.players.player1.y + 0.5) * CONFIG.grid.height +
+      (shared.players.player2.y + 0.5) * CONFIG.grid.height) *
     0.5;
 
   return [cameraX, cameraY];
@@ -94,9 +93,9 @@ export function draw() {
 
   // draw game
   drawGrid();
-  drawMap();
   items.drawItems(shared.items, assets.items);
   drawPlayers();
+  drawMap();
   pop();
 
   // draw overlay
@@ -108,36 +107,54 @@ export function draw() {
 
 function drawGrid() {
   push();
-  noFill();
-  stroke(0, 0, 0, 50);
-  for (let row = 0; row < CONFIG.grid.rows; row++) {
-    for (let col = 0; col < CONFIG.grid.cols; col++) {
-      rect(col * CONFIG.grid.size, row * CONFIG.grid.size, CONFIG.grid.size, CONFIG.grid.size);
-    }
-  }
+  // noFill();
+  // stroke(0, 0, 0, 50);
+  // for (let row = 0; row < CONFIG.grid.rows; row++) {
+  //   for (let col = 0; col < CONFIG.grid.cols; col++) {
+  //     rect(
+  //       col * CONFIG.grid.width,
+  //       row * CONFIG.grid.height,
+  //       CONFIG.grid.width,
+  //       CONFIG.grid.height
+  //     );
+  //   }
+  // }
 
-  noFill();
+  fill("#748853");
   stroke("black");
   strokeWeight(4);
-  rect(0, 0, CONFIG.grid.cols * CONFIG.grid.size, CONFIG.grid.rows * CONFIG.grid.size);
+  rect(0, 0, CONFIG.grid.cols * CONFIG.grid.width, CONFIG.grid.rows * CONFIG.grid.height);
   pop();
 }
 
 function drawMap() {
   push();
-  fill("#555");
+  noStroke();
+  noFill();
+
   for (const [x, y, value] of iterate2D(shared.map)) {
     if (value) {
       const score = getScore(shared.map, x, y);
       const img = assets.walls;
-      const imageSize = img.width / 4;
-      const sx = (score % 4) * imageSize;
-      const sy = floor(score / 4) * imageSize;
-      push();
-      translate(x * CONFIG.grid.size, y * CONFIG.grid.size);
-      image(img, 0, 0, CONFIG.grid.size, CONFIG.grid.size, sx, sy, imageSize, imageSize);
+      const imageWidth = img.width / 4;
+      const imageHeight = img.height / 4;
+      const imageRatio = imageWidth / imageHeight;
 
-      // rect(4, 4, 56, 56);
+      const sx = (score % 4) * imageWidth;
+      const sy = floor(score / 4) * imageHeight;
+      push();
+      translate(x * CONFIG.grid.width, y * CONFIG.grid.height - CONFIG.grid.height);
+      image(
+        img,
+        0,
+        0,
+        CONFIG.grid.width,
+        CONFIG.grid.width / imageRatio,
+        sx,
+        sy,
+        imageWidth,
+        imageHeight
+      );
 
       pop();
     }
@@ -153,14 +170,11 @@ function drawPlayers() {
     const playerImg = assets.player[player.facing];
     const imgRatio = playerImg.width / playerImg.height;
     push();
-    translate(localPlayer(player).x * CONFIG.grid.size, localPlayer(player).y * CONFIG.grid.size);
-    image(
-      playerImg,
-      0,
-      -CONFIG.grid.size / imgRatio + CONFIG.grid.size,
-      CONFIG.grid.size,
-      CONFIG.grid.size / imgRatio
+    translate(
+      localPlayer(player).x * CONFIG.grid.width,
+      localPlayer(player).y * CONFIG.grid.height
     );
+    image(playerImg, 0, -CONFIG.grid.height, CONFIG.grid.width, CONFIG.grid.width / imgRatio);
     pop();
   }
   pop();
