@@ -99,9 +99,11 @@ const doorTemplate = {
   type: "door",
   open: false,
   group: "",
+
   hasAsset: true,
   state: "closed",
   hasState: true,
+
   mapSymbol: function () {
     return this.group.toUpperCase();
   },

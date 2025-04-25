@@ -17,6 +17,7 @@ export function preload() {
   shared = partyLoadShared("shared");
   roleKeeper = new RoleKeeper(["player1", "player2"], "unassigned");
   roleKeeper.setAutoAssign(false);
+
   assets.player1 = {
     left: loadImage("assets/player1/left.png"),
     right: loadImage("assets/player1/right.png"),
@@ -49,6 +50,7 @@ export function preload() {
     stairs: loadImage("assets/stairs/down.png"),
     treasure: loadImage("assets/treasure.png"),
   };
+
 }
 
 export function setup() {}
@@ -153,7 +155,9 @@ function drawMap() {
   for (const [x, y, value] of iterate2D(shared.map)) {
     if (value) {
       const score = getScore(shared.map, x, y);
+
       const img = random(assets.walls);
+
       const imageWidth = img.width / 4;
       const imageHeight = img.height / 4;
       const imageRatio = imageWidth / imageHeight;
@@ -184,9 +188,11 @@ function drawMap() {
 function drawPlayers() {
   push();
 
+
   for (const playerKey of Object.keys(shared.players)) {
     const player = shared.players[playerKey];
     const playerImg = assets[playerKey][player.facing];
+
     const imgRatio = playerImg.width / playerImg.height;
     push();
     translate(
