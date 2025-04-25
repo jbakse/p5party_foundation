@@ -17,20 +17,38 @@ export function preload() {
   shared = partyLoadShared("shared");
   roleKeeper = new RoleKeeper(["player1", "player2"], "unassigned");
   roleKeeper.setAutoAssign(false);
-  assets.player = {
-    left: loadImage("assets/player.png"),
-    right: loadImage("assets/player.png"),
-    up: loadImage("assets/player.png"),
-    down: loadImage("assets/player.png"),
+  assets.player1 = {
+    left: loadImage("assets/player1/left.png"),
+    right: loadImage("assets/player1/right.png"),
+    up: loadImage("assets/player1/up.png"),
+    down: loadImage("assets/player1/down.png"),
   };
+  assets.player2 = {
+    left: loadImage("assets/player2/left.png"),
+    right: loadImage("assets/player2/right.png"),
+    up: loadImage("assets/player2/up.png"),
+    down: loadImage("assets/player2/down.png"),
+  };
+  assets.walls = [
+    loadImage("assets/tile_map/1.png"),
+    loadImage("assets/tile_map/2.png"),
+    loadImage("assets/tile_map/3.png"),
+  ];
   assets.items = {
-    crate: [loadImage("assets/crystals.png"), loadImage("assets/crystals2.png")],
+    crate: [loadImage("assets/crystals/1.png"), loadImage("assets/crystals/2.png")],
+    door: { open: loadImage("assets/door/open.png"), closed: loadImage("assets/door/closed.png") },
     floorSwitch: {
-      up: loadImage("assets/switch.png"),
-      down: loadImage("assets/switch.png"),
+      up: loadImage("assets/switch/up.png"),
+      down: loadImage("assets/switch/down.png"),
     },
+    bullet: {
+      player1: loadImage("assets/bullets/player1.png"),
+      player2: loadImage("assets/bullets/player2.png"),
+    },
+    water: loadImage("assets/water.png"),
+    stairs: loadImage("assets/stairs/down.png"),
+    treasure: loadImage("assets/treasure.png"),
   };
-  assets.walls = loadImage("assets/tile-map.png");
 }
 
 export function setup() {}
@@ -135,7 +153,7 @@ function drawMap() {
   for (const [x, y, value] of iterate2D(shared.map)) {
     if (value) {
       const score = getScore(shared.map, x, y);
-      const img = assets.walls;
+      const img = random(assets.walls);
       const imageWidth = img.width / 4;
       const imageHeight = img.height / 4;
       const imageRatio = imageWidth / imageHeight;
@@ -166,8 +184,9 @@ function drawMap() {
 function drawPlayers() {
   push();
 
-  for (const player of Object.values(shared.players)) {
-    const playerImg = assets.player[player.facing];
+  for (const playerKey of Object.keys(shared.players)) {
+    const player = shared.players[playerKey];
+    const playerImg = assets[playerKey][player.facing];
     const imgRatio = playerImg.width / playerImg.height;
     push();
     translate(

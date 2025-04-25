@@ -108,6 +108,7 @@ function onShoot({ role }) {
     y: player.y,
     facing: player.facing,
     color: player.color,
+    state: role,
   });
 }
 
@@ -120,8 +121,8 @@ function startPlaying() {
   shared.map = map;
   shared.items = items;
   shared.players = {
-    player1: { ...p1, color: "red", facing: "down", ammo: 10, score: 0 },
-    player2: { ...p2, color: "blue", facing: "down", ammo: 10, score: 0 },
+    player1: { ...p1, color: "purple", facing: "down", ammo: 10, score: 0 },
+    player2: { ...p2, color: "orange", facing: "down", ammo: 10, score: 0 },
   };
 
   shared.gameState = "playing";
@@ -194,7 +195,10 @@ function updatePlaying() {
     }
     itemsOfType("door")
       .filter((g) => floorSwitch.group === g.group)
-      .forEach((door) => (door.open = pressed));
+      .forEach((door) => {
+        door.open = pressed;
+        door.state = pressed ? "open" : "closed";
+      });
   }
 
   const stairs = itemsOfType("stairs");

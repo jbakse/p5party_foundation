@@ -22,7 +22,6 @@ const itemTemplate = {
     const asset = this.multipleAssets ? random(assets[this.type]) : assets[this.type];
     const img = this.state ? asset[this.state] : asset;
     const imgRatio = img.width / img.height;
-    // const isVertical = img.width < img.height;
     const imgW = CONFIG.grid.width;
     const imgH = CONFIG.grid.width / imgRatio;
     image(
@@ -73,6 +72,7 @@ const waterTemplate = {
   color: "#006",
   alpha: 255,
   z: 1,
+  hasAsset: true,
   mapSymbol: "≈",
   blocksMove: function () {
     return true;
@@ -84,6 +84,7 @@ const waterTemplate = {
 
 const treasureTemplate = {
   type: "treasure",
+  hasAsset: true,
   size: 16,
   shape: "ellipse",
   color: "yellow",
@@ -98,7 +99,9 @@ const doorTemplate = {
   type: "door",
   open: false,
   group: "",
-  hasAsset: false,
+  hasAsset: true,
+  state: "closed",
+  hasState: true,
   mapSymbol: function () {
     return this.group.toUpperCase();
   },
@@ -108,10 +111,10 @@ const doorTemplate = {
   blocksPush: function () {
     return !this.open;
   },
-  draw: function () {
-    if (this.open) return;
-    itemTemplate.draw.call(this);
-  },
+  // drawAsset: function (assets) {
+  //   if (this.open) return;
+  //   itemTemplate.drawAsset.call(this, assets);
+  // },
 };
 
 const floorSwitchTemplate = {
@@ -128,6 +131,7 @@ const stairsTemplate = {
   type: "stairs",
   size: 48,
   mapSymbol: "↑",
+  hasAsset: true,
 };
 
 const bulletTemplate = {
@@ -136,6 +140,25 @@ const bulletTemplate = {
   color: "gray",
   mapSymbol: false,
   z: 2,
+  hasAsset: true,
+  hasState: true,
+  state: "player1",
+  // drawAsset: function (assets) {
+  //   push();
+  //   imageMode(CENTER);
+  //   const img = assets[this.type][this.player];
+  //   const imgRatio = img.width / img.height;
+  //   const imgW = CONFIG.grid.width;
+  //   const imgH = CONFIG.grid.width / imgRatio;
+  //   image(
+  //     img,
+  //     this.x * CONFIG.grid.width + CONFIG.grid.width / 2,
+  //     this.y * CONFIG.grid.height + CONFIG.grid.height / 2,
+  //     imgW,
+  //     imgH
+  //   );
+  //   pop();
+  // },
 };
 
 const templates = {
