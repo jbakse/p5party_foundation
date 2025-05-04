@@ -5,7 +5,11 @@
   "author": "Justin Bakse",
   "license": "MIT",
   "scripts": {
-    "slice": "/Applications/Aseprite.app/Contents/MacOS/aseprite -b ./production/color_test.aseprite --save-as ./src/generated/color-{slice}.png"
+    "aseprite": "./scripts/run-aseprite.zsh",
+    "slice-players": "npm run aseprite -- ./production/players.aseprite --scale 5 --save-as  ./src/assets/players/{slice}.png",
+    "slice-items": "npm run aseprite -- ./production/items.aseprite --scale 5 --save-as  ./src/assets/items/{slice}.png",
+    "slice-map": "npm run aseprite -- ./production/tile_map.aseprite --scale 5 --save-as  ./src/assets/tile_map/{slice}.png",
+    "slice-all": "npm run slice-players && npm run slice-items && npm run slice-map"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",

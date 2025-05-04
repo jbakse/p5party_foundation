@@ -124,8 +124,7 @@ export function loadMap(mapString = mainMap) {
 
   for (const [x, y, value] of iterate2D(map)) {
     // set map/walls
-    // map[x][y] = value === "#" ? `walls.${randomInt(3)}` : false;
-    map[x][y] = value === "#" ? "walls.0" : false;
+    map[x][y] = value === "#" ? `walls.${randomInt(2)}` : false;
 
     // create basic items
     const itemType = typeForMapSymbol(value);

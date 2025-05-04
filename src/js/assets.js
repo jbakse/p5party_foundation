@@ -7,41 +7,43 @@ const assetsQueue = [];
 
 export function preload() {
   assets.player1 = {
-    left: loadImage("assets/player1/left.png"),
-    right: loadImage("assets/player1/right.png"),
-    up: loadImage("assets/player1/up.png"),
-    down: loadImage("assets/player1/down.png"),
+    left: loadImage("assets/players/player1/left.png"),
+    right: loadImage("assets/players/player1/right.png"),
+    up: loadImage("assets/players/player1/up.png"),
+    down: loadImage("assets/players/player1/down.png"),
   };
   assets.player2 = {
-    left: loadImage("assets/player2/left.png"),
-    right: loadImage("assets/player2/right.png"),
-    up: loadImage("assets/player2/up.png"),
-    down: loadImage("assets/player2/down.png"),
+    left: loadImage("assets/players/player2/left.png"),
+    right: loadImage("assets/players/player2/right.png"),
+    up: loadImage("assets/players/player2/up.png"),
+    down: loadImage("assets/players/player2/down.png"),
   };
-  assets.tiles = [
-    loadImage("assets/tile_map/1.png"),
-    // loadImage("assets/tile_map/2.png"),
-    // loadImage("assets/tile_map/3.png"),
-  ];
+  assets.tileMaps = [loadImage("assets/tile_map/1.png"), loadImage("assets/tile_map/2.png")];
+
   assets.items = {
-    crate: [loadImage("assets/crystals/1.png"), loadImage("assets/crystals/2.png")],
-    door: { open: loadImage("assets/door/open.png"), closed: loadImage("assets/door/closed.png") },
+    crate: [loadImage("assets/items/crystals/1.png"), loadImage("assets/items/crystals/2.png")],
+    door: {
+      open: loadImage("assets/items/bridge/open.png"),
+      closed: loadImage("assets/items/bridge/closed.png"),
+    },
     floorSwitch: {
-      up: loadImage("assets/switch/up.png"),
-      down: loadImage("assets/switch/down.png"),
+      up: loadImage("assets/items/switch/up.png"),
+      down: loadImage("assets/items/switch/down.png"),
     },
     bullet: {
-      player1: loadImage("assets/bullets/player1.png"),
-      player2: loadImage("assets/bullets/player2.png"),
+      player1: loadImage("assets/items/bullet/player1.png"),
+      player2: loadImage("assets/items/bullet/player2.png"),
     },
-    water: loadImage("assets/water.png"),
-    stairs: loadImage("assets/stairs/down.png"),
-    treasure: loadImage("assets/treasure.png"),
+    stairs: loadImage("assets/items/stairs/down.png"),
+    treasure: loadImage("assets/items/treasure.png"),
   };
 }
 
 export function setup() {
-  assets.walls = loadWalls();
+  assets.walls = [];
+  for (const tileMap of assets.tileMaps) {
+    assets.walls.push(sliceTiles(tileMap));
+  }
 }
 
 export function addToQueue(imageInfo) {
@@ -84,24 +86,19 @@ export function drawQueue() {
   assetsQueue.length = 0; // clear the queue
 }
 
-function loadWalls() {
-  const walls = [];
-  const score = 16;
+function sliceTiles(tileMap) {
+  const imgWidth = tileMap.width / 4;
+  const imgHeight = tileMap.height / 4;
+  const numTiles = 16;
 
-  for (const tileMap of assets.tiles) {
-    const wallSet = [];
-    const imgWidth = tileMap.width / 4;
-    const imgHeight = tileMap.height / 4;
+  const tiles = [];
 
-    for (let i = 0; i < score; i++) {
-      const sx = (i % 4) * imgWidth;
-      const sy = floor(i / 4) * imgHeight;
-      const wall = tileMap.get(sx, sy, imgWidth, imgHeight);
-      wallSet.push(wall);
-    }
-
-    walls.push(wallSet);
+  for (let i = 0; i < numTiles; i++) {
+    const sx = (i % 4) * imgWidth;
+    const sy = floor(i / 4) * imgHeight;
+    const tile = tileMap.get(sx, sy, imgWidth, imgHeight);
+    tiles.push(tile);
   }
 
-  return walls;
+  return tiles;
 }

@@ -112,7 +112,7 @@ const doorTemplate = {
   },
 
   //todo: remove
-  yOffset: -CONFIG.grid.height * 2,
+  yOffset: 0,
 };
 
 const floorSwitchTemplate = {

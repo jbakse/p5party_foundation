@@ -145,7 +145,7 @@ function drawMap() {
         path: `${shared.map[x][y]}.${score}`,
         x: x,
         y: y,
-        yOffset: -CONFIG.grid.height,
+        yOffset: 0,
       });
     }
   }
