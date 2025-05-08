@@ -3,14 +3,16 @@ import { Camera } from "./util/camera.js";
 import { RoleKeeper } from "./util/RoleKeeper.js";
 import { iterate2D } from "./util/utilities.js";
 import { changeScene, scenes } from "./main.js";
-import * as assets from "./assets.js";
 
+import * as assets from "./assets.js";
 import * as input from "./input.js";
 import * as items from "./items.js";
 
 export let roleKeeper;
 let shared;
 const camera = new Camera();
+let groundCanvas;
+let imgScale = 1;
 
 export function preload() {
   shared = partyLoadShared("shared");
@@ -18,7 +20,18 @@ export function preload() {
   roleKeeper.setAutoAssign(false);
 }
 
-export function setup() {}
+export function setup() {
+  groundCanvas = createGraphics(
+    CONFIG.grid.cols * CONFIG.grid.width,
+    CONFIG.grid.rows * CONFIG.grid.height
+  );
+
+  imgScale = CONFIG.grid.width / assets.assets.player1.left.width;
+
+  randomSeed(10);
+  groundCanvas.background("#748853");
+  drawGround();
+}
 
 export function enter() {
   for (const player of Object.values(shared.players)) {
@@ -66,8 +79,6 @@ export function mousePressed() {}
 
 /// draw functions
 export function draw() {
-  randomSeed(0);
-
   clear();
 
   // scroll
@@ -76,7 +87,7 @@ export function draw() {
   translate(-camera.x, -camera.y);
 
   // draw game
-  drawGround();
+  image(groundCanvas, 0, 0);
   // drawGrid();
   items.drawItems(shared.items);
   drawPlayers();
@@ -115,10 +126,47 @@ function drawGrid() {
 }
 
 function drawGround() {
-  fill("#748853");
-  stroke("black");
-  strokeWeight(4);
-  rect(0, 0, CONFIG.grid.cols * CONFIG.grid.width, CONFIG.grid.rows * CONFIG.grid.height);
+  function drawTexture(x, y, type) {
+    const img = random(assets.assets.ground[type]);
+    groundCanvas.image(img, x * CONFIG.grid.width, y * CONFIG.grid.height, img.width * imgScale);
+  }
+  groundCanvas.push();
+  groundCanvas.tint(255, 150);
+
+  groundCanvas.imageMode(CENTER);
+  for (let row = 0; row < CONFIG.grid.rows; row++) {
+    for (let col = 0; col < CONFIG.grid.cols; col++) {
+      if (random() < 0.05) drawTexture(col, row, "darkest");
+      if (random() < 0.08) {
+        drawTexture(col, row, "dark");
+        if (random() < 0.5) drawTexture(col, row, "light");
+        if (random() < 0.5) drawTexture(col, row, "lightest");
+      }
+      if (random() < 0.03) drawTexture(col, row, "light");
+      if (random() < 0.03) drawTexture(col, row, "lightest");
+    }
+  }
+
+  groundCanvas.pop();
+
+  groundCanvas.push();
+  groundCanvas.blendMode(SOFT_LIGHT);
+  groundCanvas.tint(255, 150);
+
+  for (let row = 0; row < CONFIG.grid.rows; row++) {
+    for (let col = 0; col < CONFIG.grid.cols; col++) {
+      if (random() < 0.05) {
+        const img = random(assets.assets.ground.highlight);
+        groundCanvas.image(
+          img,
+          col * CONFIG.grid.width,
+          row * CONFIG.grid.height,
+          img.width * imgScale
+        );
+      }
+    }
+  }
+  groundCanvas.pop();
 }
 
 function drawMap() {
@@ -145,7 +193,7 @@ function drawMap() {
         path: `${shared.map[x][y]}.${score}`,
         x: x,
         y: y,
-        yOffset: 0,
+        sort: 0,
       });
     }
   }
@@ -154,11 +202,17 @@ function drawMap() {
 function drawPlayers() {
   for (const [key, player] of Object.entries(shared.players)) {
     assets.addToQueue({
-      path: `${key}.${player.facing}`,
+      path: `${key}.${player.facing}.base`,
       x: localPlayer(player).x,
       y: localPlayer(player).y,
-      z: 2,
-      yOffset: -CONFIG.grid.height,
+      sort: 2,
+    });
+    assets.addToQueue({
+      path: `${key}.${player.facing}.light`,
+      x: localPlayer(player).x,
+      y: localPlayer(player).y,
+      blendMode: SOFT_LIGHT,
+      sort: 10,
     });
   }
 }

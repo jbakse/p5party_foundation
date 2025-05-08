@@ -1,7 +1,7 @@
-import { CONFIG } from "./config.js";
 import { shared } from "./host.js";
 import { makeId, randomInt } from "./util/utilities.js";
 import * as assets from "./assets.js";
+import { CONFIG } from "./config.js";
 
 /// parent template
 // base for specific item type templates
@@ -11,9 +11,13 @@ const itemTemplate = {
   type: "item", // string — name of item type
   mapSymbol: "?", // string or function — symbol on ascii map
   assetPath: undefined, // string path on assets object to items image "items.crate.2"
+  lightPath: undefined, // string path on assets object to items light image "items.stairs.light"
+  shadowPath: undefined, // string path on assets object to items shadow image "items.stairs.shadow"
+  hasLight: false, // boolean — if true, lightPath will be drawn
+  hasShadow: false, // boolean — if true, shadowPath will be drawn
   x: 0, // number — x position in grid widths
   y: 0, // number — y position in grid heights
-  z: 0, // number — sorting hint for vertically aligned items
+  sort: 0, // number — sorting hint for vertically aligned items
 
   // init - function — called when item is created
 
@@ -31,9 +35,30 @@ const itemTemplate = {
       path: this.assetPath,
       x: this.x,
       y: this.y,
-      z: this.z ?? 0,
       yOffset: this.yOffset ?? 0,
+      sort: this.sort ?? 0,
     });
+
+    if (this.hasLight) {
+      assets.addToQueue({
+        path: this.lightPath ?? this.assetPath.replace("base", "light"),
+        x: this.x,
+        y: this.y,
+        sort: 10,
+        blendMode: SOFT_LIGHT,
+      });
+    }
+
+    if (this.hasShadow) {
+      assets.addToQueue({
+        path: this.shadowPath ?? this.assetPath.replace("base", "shadow"),
+        x: this.x,
+        y: this.y,
+        yOffset: CONFIG.grid.height,
+        sort: 10,
+        blendMode: HARD_LIGHT,
+      });
+    }
   },
 };
 
@@ -42,29 +67,28 @@ const itemTemplate = {
 const crateTemplate = {
   type: "crate",
   mapSymbol: "▢",
-  assetPath: "items.crate.1",
-  z: 2,
+  assetPath: "items.crate.1.base",
+  sort: 2,
+
+  hasLight: true,
 
   alpha: 255,
   hits: 0,
 
   init: function () {
-    this.assetPath = `items.crate.${randomInt(2)}`;
+    this.assetPath = `items.crate.${randomInt(assets.assets.items.crate.length)}.base`;
   },
 
   blocksPush: function () {
     return true;
   },
-
-  //todo: remove
-  yOffset: -CONFIG.grid.height,
 };
 
 const waterTemplate = {
   type: "water",
   mapSymbol: "≈",
   assetPath: "items.water",
-  z: 1,
+  sort: 1,
 
   hits: 0,
 
@@ -100,8 +124,8 @@ const doorTemplate = {
       path: `items.door.${this.open ? "open" : "closed"}`,
       x: this.x,
       y: this.y,
-      z: this.z ?? 0,
-      yOffset: this.yOffset ?? 0,
+      yOffset: CONFIG.grid.height,
+      sort: 1,
     });
   },
   blocksMove: function () {
@@ -110,9 +134,6 @@ const doorTemplate = {
   blocksPush: function () {
     return !this.open;
   },
-
-  //todo: remove
-  yOffset: 0,
 };
 
 const floorSwitchTemplate = {
@@ -129,8 +150,7 @@ const floorSwitchTemplate = {
       path: `items.floorSwitch.${this.state}`,
       x: this.x,
       y: this.y,
-      z: this.z ?? 0,
-      yOffset: this.yOffset ?? 0,
+      sort: this.sort ?? 0,
     });
   },
 };
@@ -138,14 +158,15 @@ const floorSwitchTemplate = {
 const stairsTemplate = {
   type: "stairs",
   mapSymbol: "↑",
-  assetPath: "items.stairs",
+  assetPath: "items.stairs.up.base",
+  hasLight: true,
 };
 
 const bulletTemplate = {
   type: "bullet",
   mapSymbol: false,
 
-  z: 2,
+  sort: 2,
   player: "player1",
 
   draw: function () {
@@ -153,8 +174,7 @@ const bulletTemplate = {
       path: `items.bullet.${this.player}`,
       x: this.x,
       y: this.y,
-      z: this.z ?? 0,
-      yOffset: this.yOffset ?? 0,
+      sort: this.sort ?? 0,
     });
   },
 };

@@ -1,13 +1,14 @@
 import { createArray2D } from "./util/utilities.js";
 import { createItem, expand, typeForMapSymbol } from "./items.js";
 import { iterate2D, transpose2D, randomInt } from "./util/utilities.js";
+import { CONFIG } from "./config.js";
 
 export const mainMap = `
 #################################
 #       #      b#       #       #
-#▢▢▢▢▢▢▢#       B   #   #       #
+#       #       B   #   #       #
 #1     a#▢      #  ▢ ####       #
-# ↑▢$   A       ###▢$$$$#      ↑#
+# ↓     A       ###▢$$$$#      ↑#
 #2      #       #  ▢ ####       #
 #       #           #           #
 #       #       #       #       #
@@ -124,12 +125,16 @@ export function loadMap(mapString = mainMap) {
 
   for (const [x, y, value] of iterate2D(map)) {
     // set map/walls
-    map[x][y] = value === "#" ? `walls.${randomInt(2)}` : false;
+    map[x][y] = value === "#" ? `walls.${randomInt(CONFIG.numWalls)}` : false;
 
     // create basic items
     const itemType = typeForMapSymbol(value);
     if (itemType) {
       items.push(createItem(itemType, x, y));
+    }
+
+    if (value === "↓") {
+      items.push(createItem("stairs", x, y, { assetPath: "items.stairs.down", hasLight: false }));
     }
 
     // create floorSwitches for lowercase letters
