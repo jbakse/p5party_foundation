@@ -128,7 +128,13 @@ function drawGrid() {
 function drawGround() {
   function drawTexture(x, y, type) {
     const img = random(assets.assets.ground[type]);
-    groundCanvas.image(img, x * CONFIG.grid.width, y * CONFIG.grid.height, img.width * imgScale);
+    groundCanvas.image(
+      img,
+      x * CONFIG.grid.width,
+      y * CONFIG.grid.height,
+      img.width * imgScale,
+      img.height * imgScale
+    );
   }
   groundCanvas.push();
   groundCanvas.tint(255, 150);
